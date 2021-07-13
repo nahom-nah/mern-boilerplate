@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
 const cors = require("cors");
+const authRouter = require("./router/authRoutes");
 
 const app = express();
 
@@ -12,6 +13,9 @@ app.use(
     credentials: true,
   })
 );
+
+require("./config/database");
+app.use("/api/v1/auth", authRouter);
 
 const port = process.env.PORT || 9000;
 
