@@ -11,19 +11,23 @@ let redisClient = redis.createClient();
 
 const app = express();
 
+dotenv.config({ path: path.join(__dirname, "/.env") });
 app.use(
   session({
     store: new RedisStore({ client: redisClient }),
+    name: "qid",
     cookie: {
       sameSite: "lax",
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24,
     },
     saveUninitialized: false,
-    secret: "keyboard cat",
+    secret: process.env.SECRET,
     resave: false,
   })
 );
-dotenv.config({ path: path.join(__dirname, "/.env") });
+
 app.use(
   cors({
     origin: "http://localhost:3000",

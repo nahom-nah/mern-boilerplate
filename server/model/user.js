@@ -16,7 +16,7 @@ const userSchema = mongoose.Schema({
     unique: true,
   },
 
-  hash: String,
+  password: String,
   salt: String,
 
   created_on: {
@@ -34,6 +34,6 @@ const userSchema = mongoose.Schema({
   },
 });
 
-const User = mongoose.model(userSchema, "User");
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

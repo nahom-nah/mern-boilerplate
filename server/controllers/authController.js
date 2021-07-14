@@ -1,5 +1,14 @@
 const User = require("./../model/user");
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
+
+async function jwtSign(userId) {
+  return await jwt.sign({ id: userId }, process.env.SECRET, {
+    expiresIn: process.env.EXPIRESIN,
+  });
+}
+
 exports.login = (req, res) => {};
 
 exports.register = async (req, res) => {
@@ -14,6 +23,9 @@ exports.register = async (req, res) => {
     .toString("hex");
 
   const user = await User.create({ username, email, salt, password: hashPass });
+  const token = await jwtSign();
+
+  req.session.token = token;
 
   res.status(200).json({
     status: "success",
