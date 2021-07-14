@@ -9,7 +9,50 @@ async function jwtSign(userId) {
   });
 }
 
-exports.login = (req, res) => {};
+exports.login = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { email, password } = req.body;
+  const user = await User.findOne({ email: email });
+
+  if (!user) {
+    res.status(400).json({
+      status: "fail",
+      errors: [
+        {
+          name: "user not found",
+          message: "there is no user with this email address",
+        },
+      ],
+    });
+  }
+
+  const checkPass =
+    user.password ===
+    crypto.pbkdf2Sync(password, user.salt, 10000, 64, "sha512").toString("hex");
+
+  if (!checkPass) {
+    res.status(400).json({
+      status: "fail",
+      errors: [
+        {
+          name: "user not found",
+          message: "there is no user with this email address",
+        },
+      ],
+    });
+  }
+  const token = await jwtSign();
+  req.session.token = token;
+
+  res.status(200).json({
+    status: "success",
+    user,
+  });
+};
 
 exports.register = async (req, res) => {
   const errors = validationResult(req);
