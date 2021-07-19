@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
   const user = await User.findOne({ email: email });
 
   if (!user) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "fail",
       errors: [
         {
@@ -35,7 +35,7 @@ exports.login = async (req, res) => {
     crypto.pbkdf2Sync(password, user.salt, 10000, 64, "sha512").toString("hex");
 
   if (!checkPass) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "fail",
       errors: [
         {
@@ -45,7 +45,7 @@ exports.login = async (req, res) => {
       ],
     });
   }
-  const token = await jwtSign();
+  const token = await jwtSign(user.id);
   req.session.token = token;
 
   res.status(200).json({
@@ -56,6 +56,7 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
   const errors = validationResult(req);
+
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
@@ -66,12 +67,64 @@ exports.register = async (req, res) => {
     .toString("hex");
 
   const user = await User.create({ username, email, salt, password: hashPass });
-  const token = await jwtSign();
+  const token = await jwtSign(user.id);
 
   req.session.token = token;
 
   res.status(200).json({
     status: "success",
     user,
+  });
+};
+
+exports.isLogedIn = async (req, res, next) => {
+  if (!req.session.token) {
+    return res.json({
+      status: "fail",
+      user: null,
+      isLoggedIn: false,
+    });
+  }
+  const { token } = req.session;
+  const tokenV = await jwt.verify(token, process.env.SECRET);
+  if (!tokenV) {
+    res.status(400).json({
+      status: "fail",
+      errors: {
+        name: "exp",
+        message: "token expired",
+      },
+    });
+  }
+  const { userId } = tokenV;
+
+  const user = await User.findOne({ id: userId });
+  if (!user) {
+    return res.json({
+      status: "fail",
+      errors: {
+        name: "unauthorize access",
+        message: "the user is not authorzed",
+      },
+    });
+  }
+  res.status(200).json({
+    status: "success",
+    user,
+    isLoggedIn: true,
+  });
+};
+
+exports.logout = (req, res, next) => {
+  return new Promise((resolve) => {
+    req.session.destroy((err) => {
+      res.clearCookie("qid");
+      if (err) {
+        console.log(err);
+        resolve(false);
+        return;
+      }
+      resolve(true);
+    });
   });
 };

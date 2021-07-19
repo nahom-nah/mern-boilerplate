@@ -16,8 +16,8 @@ const userSchema = mongoose.Schema({
     unique: true,
   },
 
-  password: String,
-  salt: String,
+  password: { type: String },
+  salt: { type: String },
 
   created_on: {
     type: Date,
