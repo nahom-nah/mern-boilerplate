@@ -99,8 +99,10 @@ const Home = () => {
       <div className="ml-10 pl-10 w-96">
         <div className="text-2xl font-bold text-gray-900 mt-8">About Me</div>
         <div className="text-sm font-semibold text-gray-900">
-          so my name is takwale beye asbalew, ena men meselk betketrgn tru nw.
-          ayhe bezu emeke chelota nw yalgn. endesa nw
+          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+          ea voluptatum, quas facilis quod error! Aperiam, recusandae nisi
+          excepturi perferendis similique enim nemo libero ex magnam
+          perspiciatis. Quam, labore molestiae.
         </div>
         <button className="mt-6 px-12 py-2 text-sm text-white rounded-lg bg-gradient-to-r from-gray-900 hover:from-yellow-700 hover:to-red-700 to-gray-600">
           Click Me
